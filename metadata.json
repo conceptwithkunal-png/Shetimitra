@@ -1,0 +1,6 @@
+{
+  "name": "SHETI MITRA",
+  "description": "Your Farming Partner – तुमचा शेतीचा साथीदार. Comprehensive Indian agriculture platform with Mandi rates, AI Crop Doctor, weather forecasts, marketplace, schemes, and expert consultation.",
+  "requestFramePermissions": ["geolocation", "microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

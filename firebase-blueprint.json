@@ -1,0 +1,174 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account and role profile for Sheti Mitra",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "fullName": { "type": "string", "maxLength": 100 },
+        "phoneNumber": { "type": "string", "maxLength": 15 },
+        "email": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["farmer", "buyer", "expert", "admin"] },
+        "preferredLanguage": { "type": "string", "enum": ["mr", "hi", "en"] },
+        "district": { "type": "string", "maxLength": 50 },
+        "state": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["active", "pending", "suspended"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "fullName", "phoneNumber", "role", "preferredLanguage"]
+    },
+    "CropListing": {
+      "title": "CropListing",
+      "description": "Agricultural produce listed for sale by farmers",
+      "type": "object",
+      "properties": {
+        "farmerId": { "type": "string", "maxLength": 128 },
+        "farmerName": { "type": "string", "maxLength": 100 },
+        "farmerPhone": { "type": "string", "maxLength": 15 },
+        "crop": { "type": "string", "maxLength": 50 },
+        "variety": { "type": "string", "maxLength": 50 },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string", "maxLength": 20 },
+        "pricePerUnit": { "type": "number" },
+        "district": { "type": "string", "maxLength": 50 },
+        "village": { "type": "string", "maxLength": 50 },
+        "description": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["active", "sold", "cancelled"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["farmerId", "crop", "quantity", "pricePerUnit", "district", "status"]
+    },
+    "MarketplaceOrder": {
+      "title": "MarketplaceOrder",
+      "description": "Marketplace order placed by a buyer for a crop listing",
+      "type": "object",
+      "properties": {
+        "buyerId": { "type": "string", "maxLength": 128 },
+        "buyerName": { "type": "string", "maxLength": 100 },
+        "farmerId": { "type": "string", "maxLength": 128 },
+        "farmerName": { "type": "string", "maxLength": 100 },
+        "listingId": { "type": "string", "maxLength": 128 },
+        "crop": { "type": "string", "maxLength": 50 },
+        "quantity": { "type": "number" },
+        "unitPrice": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "commissionAmount": { "type": "number" },
+        "farmerPayout": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "disputed", "refunded"] },
+        "paymentStatus": { "type": "string", "enum": ["unpaid", "paid", "refunded"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["buyerId", "farmerId", "listingId", "crop", "quantity", "totalAmount", "status", "paymentStatus"]
+    },
+    "CropScan": {
+      "title": "CropScan",
+      "description": "AI crop doctor disease diagnostic report",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "cropName": { "type": "string", "maxLength": 50 },
+        "plantPart": { "type": "string", "maxLength": 50 },
+        "symptoms": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "cropName", "plantPart"]
+    },
+    "SoilTest": {
+      "title": "SoilTest",
+      "description": "Soil health card and test parameters",
+      "type": "object",
+      "properties": {
+        "farmerId": { "type": "string", "maxLength": 128 },
+        "farmName": { "type": "string", "maxLength": 100 },
+        "ph": { "type": "number" },
+        "nitrogen": { "type": "number" },
+        "phosphorus": { "type": "number" },
+        "potassium": { "type": "number" },
+        "organicCarbon": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["farmerId", "farmName", "ph"]
+    },
+    "ExpenseRecord": {
+      "title": "ExpenseRecord",
+      "description": "Farm season expense and profit calculation record",
+      "type": "object",
+      "properties": {
+        "farmerId": { "type": "string", "maxLength": 128 },
+        "season": { "type": "string", "maxLength": 50 },
+        "crop": { "type": "string", "maxLength": 50 },
+        "areaAcres": { "type": "number" },
+        "totalRevenue": { "type": "number" },
+        "totalExpense": { "type": "number" },
+        "netProfit": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["farmerId", "crop", "totalRevenue", "totalExpense", "netProfit"]
+    },
+    "RentalBooking": {
+      "title": "RentalBooking",
+      "description": "Equipment rental booking transaction",
+      "type": "object",
+      "properties": {
+        "farmerId": { "type": "string", "maxLength": 128 },
+        "equipmentId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "totalCost": { "type": "number" },
+        "status": { "type": "string", "enum": ["requested", "confirmed", "completed", "cancelled"] },
+        "bookingDate": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["farmerId", "equipmentId", "ownerId", "totalCost", "status"]
+    },
+    "Consultation": {
+      "title": "Consultation",
+      "description": "Agri-expert consultation request and advice",
+      "type": "object",
+      "properties": {
+        "farmerId": { "type": "string", "maxLength": 128 },
+        "expertId": { "type": "string", "maxLength": 128 },
+        "crop": { "type": "string", "maxLength": 50 },
+        "issueDescription": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["requested", "accepted", "answered", "closed"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["farmerId", "expertId", "crop", "issueDescription", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profiles and account settings"
+    },
+    "/crop_listings/{listingId}": {
+      "schema": { "$ref": "#/entities/CropListing" },
+      "description": "Farmer crop listings for sale"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/MarketplaceOrder" },
+      "description": "Crop buy/sell orders"
+    },
+    "/crop_scans/{scanId}": {
+      "schema": { "$ref": "#/entities/CropScan" },
+      "description": "AI Crop Doctor disease scans"
+    },
+    "/soil_tests/{testId}": {
+      "schema": { "$ref": "#/entities/SoilTest" },
+      "description": "Farmer soil health tests"
+    },
+    "/expenses/{expenseId}": {
+      "schema": { "$ref": "#/entities/ExpenseRecord" },
+      "description": "Farming seasonal expense records"
+    },
+    "/rental_bookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/RentalBooking" },
+      "description": "Equipment rental bookings"
+    },
+    "/consultations/{consultationId}": {
+      "schema": { "$ref": "#/entities/Consultation" },
+      "description": "Farmer expert consultations"
+    }
+  }
+}

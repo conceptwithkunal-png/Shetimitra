@@ -1,0 +1,154 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'conceptwithkunal@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().fullName is string && incoming().fullName.size() <= 100 &&
+        incoming().phoneNumber is string && incoming().phoneNumber.size() <= 15;
+      allow update: if (isOwner(userId) || isAdmin()) &&
+        incoming().userId == existing().userId;
+      allow delete: if isAdmin();
+    }
+
+    // Admins Collection
+    match /admins/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Crop Listings
+    match /crop_listings/{listingId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+        incoming().farmerId == request.auth.uid &&
+        incoming().crop is string && incoming().crop.size() <= 50;
+      allow update: if isSignedIn() &&
+        (existing().farmerId == request.auth.uid || isAdmin()) &&
+        incoming().farmerId == existing().farmerId;
+      allow delete: if isSignedIn() &&
+        (existing().farmerId == request.auth.uid || isAdmin());
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read: if isSignedIn() &&
+        (existing().buyerId == request.auth.uid || existing().farmerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() &&
+        incoming().buyerId == request.auth.uid;
+      allow update: if isSignedIn() &&
+        (existing().buyerId == request.auth.uid || existing().farmerId == request.auth.uid || isAdmin()) &&
+        incoming().buyerId == existing().buyerId &&
+        incoming().farmerId == existing().farmerId;
+      allow delete: if isAdmin();
+    }
+
+    // AI Crop Scans
+    match /crop_scans/{scanId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // Soil Tests
+    match /soil_tests/{testId} {
+      allow read: if isSignedIn() && (existing().farmerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().farmerId == request.auth.uid;
+      allow update: if isSignedIn() && (existing().farmerId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (existing().farmerId == request.auth.uid || isAdmin());
+    }
+
+    // Expenses
+    match /expenses/{expenseId} {
+      allow read: if isSignedIn() && (existing().farmerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().farmerId == request.auth.uid;
+      allow update: if isSignedIn() && (existing().farmerId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (existing().farmerId == request.auth.uid || isAdmin());
+    }
+
+    // Equipment
+    match /equipment/{equipId} {
+      allow read: if true;
+      allow create: if isSignedIn() && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && (existing().ownerId == request.auth.uid || isAdmin()) && incoming().ownerId == existing().ownerId;
+      allow delete: if isSignedIn() && (existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Equipment Bookings
+    match /rental_bookings/{bookingId} {
+      allow read: if isSignedIn() && (existing().farmerId == request.auth.uid || existing().ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().farmerId == request.auth.uid;
+      allow update: if isSignedIn() && (existing().farmerId == request.auth.uid || existing().ownerId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Consultations
+    match /consultations/{consultationId} {
+      allow read: if isSignedIn() && (existing().farmerId == request.auth.uid || existing().expertId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().farmerId == request.auth.uid;
+      allow update: if isSignedIn() && (existing().farmerId == request.auth.uid || existing().expertId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Mandi Prices (Public read, Admin or server write)
+    match /mandi_prices/{priceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Schemes (Public read, Admin write)
+    match /schemes/{schemeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // App Settings (Public read, Admin write)
+    match /app_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Audit logs (Admin read/write)
+    match /audit_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
